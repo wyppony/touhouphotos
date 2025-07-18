@@ -1,0 +1,188 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片库</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px;
+        }
+        #upload-container {
+            margin-bottom: 20px;
+        }
+        .message {
+            margin-top: 10px;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        #random-image {
+            max-width: 300px;
+            margin-top: 20px;
+            object-fit: contain;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        #image-list-container {
+            display: none;
+            margin-top: 20px;
+        }
+        .gallery-item {
+            display: inline-block;
+            margin-right: 10px;
+            text-align: center;
+        }
+        .gallery-image {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .delete-button {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>图片库</h1>
+    <div id="upload-container">
+        <input type="file" id="image-upload" accept="image/*" multiple>
+        <button onclick="uploadImages()">上传图片</button>
+        <button onclick="showRandomImage()" disabled id="random-button">展示随机图片</button>
+        <button onclick="toggleImageList()">图片列表</button>
+        <div id="message" class="message"></div>
+    </div>
+    <img id="random-image" src="" alt="随机图片">
+    <div id="image-list-container">
+        <div id="image-list"></div>
+    </div>
+
+    <script>
+        let images = JSON.parse(localStorage.getItem('images')) || [];
+
+        function uploadImages() {
+            const input = document.getElementById('image-upload');
+            const files = input.files;
+            const messageDiv = document.getElementById('message');
+            const randomButton = document.getElementById('random-button');
+
+            if (files.length === 0) {
+                showMessage("×请选择至少一张图片", "error");
+                return;
+            }
+
+            let successCount = 0;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        images.push({ url: e.target.result, index: images.length });
+                        successCount++;
+                        if (successCount === files.length) {
+                            showMessage("√图片上传成功", "success");
+                            randomButton.disabled = false;
+                            saveImagesToLocalStorage();
+                            updateImageList();
+                        }
+                    };
+                    reader.onerror = function() {
+                        showMessage("×发生未知错误请重试", "error");
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    showMessage("×文件类型不支持，请选择图片文件", "error");
+                }
+            }
+        }
+
+        function showRandomImage() {
+            if (images.length === 0) {
+                showMessage("请先上传一些图片！", "error");
+                return;
+            }
+            const randomIndex = Math.floor(Math.random() * images.length);
+            const randomImageSrc = images[randomIndex].url;
+            const randomImageElement = document.getElementById('random-image');
+            randomImageElement.src = randomImageSrc;
+        }
+
+        function toggleImageList() {
+            const imageListContainer = document.getElementById('image-list-container');
+            if (imageListContainer.style.display === 'none' || imageListContainer.style.display === '') {
+                imageListContainer.style.display = 'block';
+            } else {
+                imageListContainer.style.display = 'none';
+            }
+        }
+
+        function updateImageList() {
+            const imageListContainer = document.getElementById('image-list');
+            imageListContainer.innerHTML = '';
+            images.forEach(image => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'gallery-item';
+
+                const img = document.createElement('img');
+                img.src = image.url;
+                img.className = 'gallery-image';
+
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'delete-button';
+                deleteButton.textContent = '删除';
+                deleteButton.onclick = () => deleteImage(image.index);
+
+                itemDiv.appendChild(img);
+                itemDiv.appendChild(deleteButton);
+                imageListContainer.appendChild(itemDiv);
+            });
+        }
+
+        function deleteImage(index) {
+            const imageIndex = images.findIndex(img => img.index === index);
+            if (imageIndex !== -1) {
+                images.splice(imageIndex, 1);
+                saveImagesToLocalStorage();
+                updateImageList();
+                if (images.length === 0) {
+                    const randomButton = document.getElementById('random-button');
+                    randomButton.disabled = true;
+                }
+            }
+        }
+
+        function saveImagesToLocalStorage() {
+            localStorage.setItem('images', JSON.stringify(images));
+        }
+
+        function showMessage(text, className) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${className}`;
+        }
+
+        // 初始化图片列表
+        updateImageList();
+        if (images.length > 0) {
+            const randomButton = document.getElementById('random-button');
+            randomButton.disabled = false;
+        }
+    </script>
+</body>
+</html>
