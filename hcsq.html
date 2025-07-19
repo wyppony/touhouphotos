@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抽幻存神签</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+        .image-container {
+            position: relative;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 16px;
+            color: white;
+            background-color: blue;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: darkblue;
+        }
+        img {
+            max-width: 80%;
+            margin-right: 20px;
+        }
+        #redrawButton {
+            display: none;
+            position: absolute;
+            bottom: 0;
+            right: -120px; /* Adjust as needed */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="title">抽幻存神签</h1>
+        <div class="image-container">
+            <img id="signImage" src="" alt="神签">
+            <button id="redrawButton" onclick="redrawSign()">再抽一遍</button>
+        </div>
+        <button id="drawButton" onclick="drawSign()">抽幻存神签</button>
+    </div>
+    <div>
+    <a target="_blank" rel="noopener noreferrer" href="https://wyppony.github.io/lovebaka/">大本营</a>
+    <a target="_blank" rel="noopener noreferrer" href="https://wyppony.github.io/touhouphotos/">返回图片库</a>
+    </div>
+    <script>
+        const images = [
+            "1.东方幻存神签（露米娅）.png",
+            "2.东方幻存神签（大妖精）.png",
+            "3.东方幻存神签（琪露诺）.png",
+            "4.东方幻存神签（红美铃）.png",
+            "5.东方幻存神签（小恶魔）.png",
+            "6.东方幻存神签（帕秋莉·诺蕾姬）.png",
+            "7.东方幻存神签（十六夜咲夜）.png",
+            "8.东方幻存神签（蕾米莉亚·斯卡蕾特）.png",
+            "9.东方幻存神签（芙兰朵露·斯卡蕾特）.png",
+            "10.东方幻存神签（蕾蒂·霍瓦特洛克）.png",
+            "11.东方幻存神签（橙）.png",
+            "12.东方幻存神签（爱丽丝·玛格特洛依德）.png",
+            "13.东方幻存神签（莉莉霍瓦特）.png",
+            "14.东方幻存神签（露娜萨·普莉兹姆利巴）.png",
+            "15.东方幻存神签（梅露兰·普莉兹姆利巴）.png",
+            "16.东方幻存神签（莉莉卡·普莉兹姆利巴）.png",
+            "17.东方幻存神签（魂魄妖梦）.png",
+            "18.东方幻存神签（西行寺幽幽子）.png",
+            "19.东方幻存神签（八云蓝）.png",
+            "20.东方幻存神签（八云紫）.png",
+            "21.东方幻存神签（伊吹萃香）.png",
+            "22.东方幻存神签（莉格露·奈特巴格）.png",
+            "23.东方幻存神签（米斯蒂娅·萝蕾拉）.png",
+            "24.东方幻存神签（上白泽慧音）.png",
+            "25.东方幻存神签（因幡天为）.png",
+            "26.东方幻存神签（铃仙·优昙华院·因幡）.png",
+            "27.东方幻存神签（八意永琳）.png",
+            "28.东方幻存神签（蓬莱山辉夜）.png",
+            "29.东方幻存神签（上白泽慧音（白泽））.png",
+            "30.东方幻存神签（藤原妹红）.png",
+            "31.东方幻存神签（梅蒂欣·梅兰可莉）.png",
+            "32.东方幻存神签（风见幽香）.png",
+            "33.东方幻存神签（射命丸文）.png",
+            "34.东方幻存神签（小野塚小町）.png",
+            "35.东方幻存神签（四季映姬·夜摩仙那度）.png",
+            "36.东方幻存神签（秋静叶）.png",
+            "37.东方幻存神签（秋穰子）.png",
+            "38.东方幻存神签（键山雏）.png",
+            "39.东方幻存神签（河城荷取）.png",
+            "40.东方幻存神签（犬走椛）.png",
+            "41.东方幻存神签（东风谷早苗）.png",
+            "42.东方幻存神签（八坂神奈子）.png",
+            "43.东方幻存神签（洩矢诹访子）.png",
+            "44.东方幻存神签（永江衣玖）.png",
+            "45.东方幻存神签（比那名居天子）.png",
+            "46.东方幻存神签（琪斯美）.png",
+            "47.东方幻存神签（黑谷山女）.png",
+            "48.东方幻存神签（水桥帕露西）.png",
+            "49.东方幻存神签（星熊勇仪）.png",
+            "50.东方幻存神签（古明地觉）.png",
+            "51.东方幻存神签（火焰猫燐）.png",
+            "52.东方幻存神签（灵乌路空）.png",
+            "53.东方幻存神签（古明地恋）.png",
+            "54.东方幻存神签（娜兹玲）.png",
+            "55.东方幻存神签（多多良小伞）.png",
+            "56.东方幻存神签（云居一轮&云山）.png",
+            "57.东方幻存神签（村纱水蜜）.png",
+            "58.东方幻存神签（寅丸星）.png",
+            "59.东方幻存神签（圣白莲）.png",
+            "60.东方幻存神签（封兽鵺）.png",
+            "61.东方幻存神签（姬海棠果）.png",
+            "62.东方幻存神签（桑尼米尔克）.png",
+            "63.东方幻存神签（露娜切露德）.png",
+            "64.东方幻存神签（斯塔萨菲雅）.png",
+            "65.东方幻存神签（幽谷响子）.png",
+            "66.东方幻存神签（宫古芳香）.png",
+            "67.东方幻存神签（霍青娥）.png",
+            "68.东方幻存神签（苏我屠自古）.png",
+            "69.东方幻存神签（物部布都）.png",
+            "70.东方幻存神签（丰聪耳神子）.png",
+            "71.东方幻存神签（二岩猯藏）.png",
+            "72.东方幻存神签（秦心）.png",
+            "73.东方幻存神签（若鹭姬）.png",
+            "74.东方幻存神签（赤蛮奇）.png",
+            "75.东方幻存神签（今泉影狼）.png",
+            "76.东方幻存神签（九十九弁弁）.png",
+            "77.东方幻存神签（九十九八桥）.png",
+            "78.东方幻存神签（鬼人正邪）.png",
+            "79.东方幻存神签（少名针妙丸）.png",
+            "80.东方幻存神签（堀川雷鼓）.png",
+            "81.东方幻存神签（茨木华扇）.png",
+            "82.东方幻存神签（宇佐见堇子）.png",
+            "83.东方幻存神签（清兰）.png",
+            "84.东方幻存神签（铃瑚）.png",
+            "85.东方幻存神签（哆来咪·苏伊特）.png",
+            "86.东方幻存神签（稀神探女）.png",
+            "87.东方幻存神签（克劳恩皮丝）.png",
+            "88.东方幻存神签（纯狐）.png",
+            "89.东方幻存神签（赫卡提亚·拉碧斯拉祖利）.png",
+            "90.东方幻存神签（依神女苑）.png",
+            "91.东方幻存神签（依神紫苑）.png",
+            "92.东方幻存神签（爱塔妮缇拉尔瓦）.png",
+            "93.东方幻存神签（坂田合欢）.png",
+            "94.东方幻存神签（高丽野阿吽）.png",
+            "95.东方幻存神签（矢田寺成美）.png",
+            "96.东方幻存神签（丁礼田舞）.png",
+            "97.东方幻存神签（尔子田里乃）.png",
+            "98.东方幻存神签（摩多罗隐岐奈）.png",
+            "99.东方幻存神签（戎璎花）.png",
+            "100.东方幻存神签（牛崎润美）.png",
+            "101.东方幻存神签（庭渡久侘歌）.png",
+            "102.东方幻存神签（吉吊八千慧）.png",
+            "103.东方幻存神签（杖刀偶磨弓）.png",
+            "104.东方幻存神签（埴安神袿姬）.png",
+            "105.东方幻存神签（骊驹早鬼）.png",
+            "106.东方幻存神签（饕餮尤魔）.png",
+            "107.东方幻存神签（豪德寺三花）.png",
+            "108.东方幻存神签（山城高岭）.png",
+            "109.东方幻存神签（驹草山如）.png",
+            "110.东方幻存神签（玉造魅须丸）.png",
+            "111.东方幻存神签（菅牧典）.png",
+            "112.东方幻存神签（饭纲丸龙）.png",
+            "113.东方幻存神签（天弓千亦）.png",
+            "114.东方幻存神签（姬虫百百世）.png",
+            "115.东方幻存神签（孙美天）.png",
+            "116.东方幻存神签（三头慧之子）.png",
+            "117.东方幻存神签（天火人血枪）.png",
+            "118.东方幻存神签（豫母都日狭美）.png",
+            "119.东方幻存神签（日白残无）.png",
+            "120.东方幻存神签（绵月丰姬）.png",
+            "121.东方幻存神签（绵月依姬）.png",
+            "122.东方幻存神签（本居小铃）.png",
+            "123.东方幻存神签（奥野田美宵）.png",
+            "124.东方幻存神签（宫出口瑞灵）.png",
+            "125.东方幻存神签（森近霖之助）.png",
+            "126.东方幻存神签（稗田阿求）.png",
+            "127.东方幻存神签（雾雨魔理沙）.png",
+            "128.东方幻存神签（博丽灵梦）.png"
+        ];
+
+        function drawSign() {
+            const randomIndex = Math.floor(Math.random() * images.length);
+            document.getElementById('signImage').src = images[randomIndex];
+            document.getElementById('drawButton').style.display = 'none';
+            document.getElementById('redrawButton').style.display = 'block';
+            document.getElementById('title').style.display = 'none';
+        }
+
+        function redrawSign() {
+            const randomIndex = Math.floor(Math.random() * images.length);
+            document.getElementById('signImage').src = images[randomIndex];
+        }
+    </script>
+</body>
+</html>
